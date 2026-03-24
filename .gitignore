@@ -1,0 +1,15 @@
+# Бинарные файлы
+main
+mini-docker
+
+# Системные папки и слои контейнеров
+/var/lib/mini-docker/
+
+# Базовый образ (RootFS)
+lowdir/
+
+
+# Временные файлы редакторов
+.vscode/
+.idea/
+*.swp

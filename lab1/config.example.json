@@ -1,0 +1,5 @@
+{
+  "id": "test-container-1",
+  "hostname": "itmo-lab-pc1",
+  "command": "/bin/sh"
+}
