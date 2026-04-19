@@ -1,0 +1,36 @@
+services:
+  service-a:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        SERVICE_PATH: service-a
+    container_name: service-a
+    ports:
+      - "${SERVICE_A_EXTERNAL_PORT:-8000}:8000"
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
+      - APP_VERSION=${DEFAULT_APP_VERSION}
+    depends_on:
+      service-b:
+        condition: service_healthy
+
+
+
+  service-b:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        SERVICE_PATH: service-b
+    container_name: service-b
+    ports:
+      - "${SERVICE_B_EXTERNAL_PORT:-8001}:8000"
+    environment:
+      - APP_VERSION=${DEFAULT_APP_VERSION}
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

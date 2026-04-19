@@ -1,0 +1,112 @@
+# 1. Хранилище настроек
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: lab2
+data:
+  BACKEND_URL: "http://service-b"
+---
+# 2. Описание Service B - Версия v1 (Стабильная, но медленная)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-b-v1
+  namespace: lab2
+  labels:
+    app: service-b
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-b
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: service-b
+        version: v1
+    spec:
+      containers:
+      - name: app
+        image: service-b:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+          name: http-api
+        env:
+        - name: APP_VERSION
+          value: "v1"
+        - name: BACKEND_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: BACKEND_URL
+        resources: 
+          requests:
+            cpu: "100m"
+            memory: "64Mi"
+          limits:
+            cpu: "250m"
+            memory: "128Mi"
+        livenessProbe: # жив ли процесс
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+        readinessProbe: # готов ли принимать трафик
+          httpGet:
+            path: /health
+            port: 8000
+---
+# 3. Описание Service B - Версия v2 (Быстрая)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-b-v2
+  namespace: lab2
+  labels:
+    app: service-b
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-b
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: service-b
+        version: v2
+    spec:
+      containers:
+      - name: app
+        image: service-b:latest
+        imagePullPolicy: Never
+        env:
+        - name: APP_VERSION
+          value: "v2"
+        - name: BACKEND_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: BACKEND_URL
+        ports:
+        - containerPort: 8000
+          name: http-api
+---
+# 4. Общий абстрактный адрес для Service B
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-b
+  namespace: lab2
+spec:
+  selector:
+    app: service-b # Объединяет и v1, и v2 под одним DNS-именем
+  ports:
+  - name: http # Имя порта обязательно должно начинаться с 'http' для Istio
+    port: 80
+    targetPort: 8000

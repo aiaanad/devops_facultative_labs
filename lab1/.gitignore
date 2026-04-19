@@ -8,6 +8,8 @@ mini-docker
 # Базовый образ (RootFS)
 lowdir/
 
+# секреты
+config.json
 
 # Временные файлы редакторов
 .vscode/

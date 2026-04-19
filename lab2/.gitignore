@@ -1,0 +1,41 @@
+# --- Секреты и конфиденциальность ---
+.env
+.env.*
+*.pem
+*.key
+secrets/
+# Игнорируем манифесты с секретами (если есть)
+*secret.yaml
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+build/
+dist/
+*.egg-info/
+
+# --- IDE (VS Code, PyCharm) ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Системные файлы ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Инфраструктура (Minikube / K8s) ---
+.minikube/
+.kube/
+*.log
+
+# --- Obsidian (если заметки лежат в этой же папке) ---
+.obsidian/
+.trash/

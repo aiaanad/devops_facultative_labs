@@ -1,0 +1,55 @@
+# 1. Входная точка в кластер
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: app-gateway
+  namespace: lab2
+spec:
+  selector:
+    istio: ingressgateway # Используем стандартный шлюз Istio
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+# 2. Правила маршрутизации для бэкенда
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: backend-vs
+  namespace: lab2
+spec:
+  hosts:
+  - service-b
+  http:
+  - route:
+    - destination:
+        host: service-b
+        subset: v1
+      weight: 50 # Половина трафика уходит на стабильную версию
+    - destination:
+        host: service-b
+        subset: v2
+      weight: 50 # Вторая половина уходит на "канарейку"
+---
+# 3. Политики безопасности и разделение на версии
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: backend-dr
+  namespace: lab2
+spec:
+  host: service-b
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL # Включаем mTLS (шифрование между подами)
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2

@@ -1,0 +1,28 @@
+# Git
+.git
+.gitignore
+
+# Python кэши и окружения
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Конфигурации и секреты (ВАЖНО!)
+.env
+.dockerignore
+docker-compose.yml
+docker-compose.override.yml
+
+# IDE и временные файлы
+.vscode/
+.idea/
+*.swp
+*.bak
+.DS_Store
+
+# Инфраструктура
+k8s-manifests/
