@@ -1,4 +1,4 @@
 uvicorn
 requests
 fastapi
-
+httpx

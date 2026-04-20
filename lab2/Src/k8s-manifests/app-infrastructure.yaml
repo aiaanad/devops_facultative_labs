@@ -7,7 +7,7 @@ metadata:
 data:
   BACKEND_URL: "http://service-b"
 ---
-# 2. Описание Service B - Версия v1 (Стабильная, но медленная)
+# 2. Описание Service B - Версия v1
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -60,7 +60,7 @@ spec:
             path: /health
             port: 8000
 ---
-# 3. Описание Service B - Версия v2 (Быстрая)
+# 3. Описание Service B - Версия v2
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -107,6 +107,52 @@ spec:
   selector:
     app: service-b # Объединяет и v1, и v2 под одним DNS-именем
   ports:
-  - name: http # Имя порта обязательно должно начинаться с 'http' для Istio
+  - name: http
     port: 80
+    targetPort: 8000
+---
+# 5. Описание Service A
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-a
+  namespace: lab2
+  labels:
+    app: service-a
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-a
+  template:
+    metadata:
+      labels:
+        app: service-a
+    spec:
+      containers:
+      - name: app
+        image: service-a:latest 
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+          name: http-api
+        env:
+        - name: BACKEND_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: BACKEND_URL
+---
+# 6. Сервис для доступа к А
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-a
+  namespace: lab2
+spec:
+  selector:
+    app: service-a
+  ports:
+  - name: http
+    port: 8000
     targetPort: 8000

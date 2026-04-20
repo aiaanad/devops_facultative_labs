@@ -53,3 +53,24 @@ spec:
   - name: v2
     labels:
       version: v2
+---
+# 4. Проброс внешнего трафика на Сервис А
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ingress-vs
+  namespace: lab2
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - app-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: service-a
+        port:
+          number: 8000
